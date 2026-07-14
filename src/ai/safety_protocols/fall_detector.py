@@ -126,14 +126,25 @@ class FallDetector:
         landmarks_list = detection_result.pose_landmarks[0]
         current_landmarks = landmarks_list.landmark if hasattr(landmarks_list, 'landmark') else landmarks_list
         
+        if not self.is_partially_visible(current_landmarks):
+            return self.handle_missing_user(frame)
+        
         left_hip = current_landmarks[23]
         right_hip = current_landmarks[24]
 
-        # תיקון בעיית ההסתרה: אם לא רואים את האגן, אבל כבר היינו בשכיבה - תמשיך לספור!
+
         if left_hip.visibility < 0.5 or right_hip.visibility < 0.5:
-            if self.was_low_in_last_frame and not self.is_locked:
-                return self.handle_lying_state(frame, current_landmarks)
+            cv2.putText(frame, "Adjust camera: Need full body for tracking", (30, 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            # מאפסים טיימרים כדי שלא תופעל אזעקה בטעות
+            self.reset_timers()
             return frame, False
+
+        # תיקון בעיית ההסתרה: אם לא רואים את האגן, אבל כבר היינו בשכיבה - תמשיך לספור!
+        # if left_hip.visibility < 0.5 or right_hip.visibility < 0.5:
+        #     if self.was_low_in_last_frame and not self.is_locked:
+        #         return self.handle_lying_state(frame, current_landmarks)
+        #     return frame, False
 
         mid_hip_y = (left_hip.y + right_hip.y) / 2
 
@@ -160,6 +171,15 @@ class FallDetector:
                 return self.handle_lying_state(frame, current_landmarks)
             
         return frame, False
+
+    def is_partially_visible(self, landmarks):
+        """בודק אם רואים לפחות חלק מהגוף (ראש או כתפיים)"""
+        # אף (0), כתף שמאל (11), כתף ימין (12)
+        # נבדוק אם לפחות אחת מהנקודות האלה מזוהה בבירור
+        return (landmarks[0].visibility > 0.5 or 
+                landmarks[11].visibility > 0.5 or 
+                landmarks[12].visibility > 0.5)
+    
 
     # ==========================================
     # הפונקציה הראשית שמנהלת את הכל
