@@ -254,6 +254,199 @@
 
 
 
+# from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QPushButton
+# from PyQt6.QtCore import Qt
+# from PyQt6.QtGui import QFont
+# from src.gui.components.stats_card import StatsCard
+
+# class WorkoutDashboard(QFrame):
+#     """לוח מדדים מעוצב בלייב - כולל טיימר/מדדים וכפתורי שליטה דינמיים"""
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+        
+#         layout = QVBoxLayout(self)
+#         layout.setContentsMargins(10, 15, 10, 15)
+#         layout.setSpacing(15)
+#         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        
+#         # 1. סטטוס המערכת
+#         self.status_title = QLabel("WORKOUT STATUS")
+#         self.status_title.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
+#         layout.addWidget(self.status_title)
+        
+#         self.status_label = QLabel("READY")
+#         self.status_label.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+#         self.status_label.setStyleSheet("color: #00ff66; background: transparent; border: none;")
+#         layout.addWidget(self.status_label)
+        
+#         # 2. קוביות המדדים המעודכנות
+#         self.goal_card = StatsCard("Target Goal", "0", self)
+#         self.progress_card = StatsCard("Reps Remaining", "0", self)
+#         self.time_card = StatsCard("Session Time Left", "00:00", self)
+        
+#         layout.addWidget(self.goal_card)
+#         layout.addWidget(self.progress_card)
+#         layout.addWidget(self.time_card)
+
+#         # 3. אזור הפידבק של ה-AI בזמן אמת
+#         self.feedback_title = QLabel("AI REAL-TIME FEEDBACK")
+#         self.feedback_title.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
+#         layout.addWidget(self.feedback_title)
+
+#         self.feedback_label = QLabel("Waiting for movement pattern...")
+#         self.feedback_label.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
+#         self.feedback_label.setWordWrap(True)
+#         self.feedback_label.setMinimumHeight(70)
+#         self.feedback_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+#         self.feedback_label.setStyleSheet("color: #e2e8f0; background: transparent; border: none; line-height: 16px;")
+#         layout.addWidget(self.feedback_label)
+        
+#         # 4. כפתור ה-PAUSE / RESUME המעוצב
+#         self.pause_btn = QPushButton("PAUSE", self)
+#         self.pause_btn.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
+#         self.pause_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+#         # self.pause_btn.setStyleSheet("""
+#         #     QPushButton {
+#         #         color: #00f3ff;
+#         #         background: transparent;
+#         #         border: 1px solid #00f3ff;
+#         #         padding: 8px;
+#         #         border-radius: 5px;
+#         #         margin-top: 10px;
+#         #     }
+#         #     QPushButton:hover { background-color: #09252c; color: #ffffff; }
+#         # """)
+#         layout.addWidget(self.pause_btn)
+
+#         # 5. כפתור ה-QUIT לסיום האימון
+#         self.exit_session_btn = QPushButton("QUIT", self)
+#         self.exit_session_btn.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
+#         self.exit_session_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+#         # self.exit_session_btn.setStyleSheet("""
+#         #     QPushButton {
+#         #         color: #ff3333;
+#         #         background: transparent;
+#         #         border: 1px solid #ff3333;
+#         #         padding: 8px;
+#         #         border-radius: 5px;
+#         #         margin-top: 5px;
+#         #     }
+#         #     QPushButton:hover { background-color: #2a1111; }
+#         # """)
+#         layout.addWidget(self.exit_session_btn)
+        
+       
+
+
+
+#         self.setObjectName("WorkoutDashboard")
+#         self.status_title.setObjectName("DashboardStatusTitle")
+#         self.feedback_title.setObjectName("FeedbackTitle")
+#         self.pause_btn.setObjectName("PauseBtn")
+#         self.exit_session_btn.setObjectName("QuitBtn")
+
+
+
+
+#     def set_paused_ui(self, is_paused):
+#         """משנה את הנראות והצבעים של כפתור העצירה בלייב"""
+#         if is_paused:
+#             self.pause_btn.setText("RESUME")
+#             self.pause_btn.setStyleSheet("""
+#                 QPushButton {
+#                     color: #0c0f12;
+#                     background-color: #00ff66;
+#                     border: none;
+#                     padding: 8px;
+#                     border-radius: 5px;
+#                     margin-top: 10px;
+#                 }
+#                 QPushButton:hover { background-color: #ffffff; }
+#             """)
+#             self.status_label.setText("PAUSED")
+#             self.status_label.setStyleSheet("color: #f1c40f; background: transparent; border: none;")
+#         else:
+#             self.pause_btn.setText("PAUSE")
+#             self.pause_btn.setStyleSheet("""
+#                 QPushButton {
+#                     color: #00f3ff;
+#                     background: transparent;
+#                     border: 1px solid #00f3ff;
+#                     padding: 8px;
+#                     border-radius: 5px;
+#                     margin-top: 10px;
+#                 }
+#                 QPushButton:hover { background-color: #09252c; color: #ffffff; }
+#             """)
+#             self.status_label.setText("TRAINING")
+#             self.status_label.setStyleSheet("color: #00f3ff; background: transparent; border: none;")
+
+#     def update_ui_metrics(self, target_goal, reps_left, time_left, is_active, feedback):
+#         """מעדכן את כל המדדים בצורה בטוחה ומסונכרנת עם ה-MainWindow"""
+#         self.goal_card.update_value(str(target_goal))
+#         self.progress_card.update_value(str(reps_left))
+        
+#         # חישוב הפורמט של הזמן (דקות:שניות) מהשניות שנותרו
+#         minutes = int(time_left) // 60
+#         seconds = int(time_left) % 60
+#         time_string = f"{minutes:02d}:{seconds:02d}"
+#         self.time_card.update_value(time_string)
+        
+#         # צביעת הטיק של ה-10 שניות האחרונות באדום להתרעה עיצובית חכמה
+#         if time_left <= 10 and is_active:
+#             self.time_card.value_label.setStyleSheet("color: #ff3333; font-weight: bold; background: transparent;")
+#         else:
+#             self.time_card.value_label.setStyleSheet("color: #e2e8f0; font-weight: bold; background: transparent;")
+        
+#         # ניהול צבעי פידבק וסטטוס דינמיים
+#         if feedback:
+#             self.feedback_label.setText(feedback)
+#             if "ERROR" in feedback or "FIX" in feedback:
+#                 self.feedback_label.setStyleSheet("color: #ff3333; font-weight: bold; background: transparent; border: none;")
+#                 self.status_label.setText("FIX FORM")
+#                 self.status_label.setStyleSheet("color: #ff3333; background: transparent; border: none;")
+#             else:
+#                 self.feedback_label.setStyleSheet("color: #00ff66; font-weight: bold; background: transparent; border: none;")
+#                 if is_active:
+#                     self.status_label.setText("TRAINING")
+#                     self.status_label.setStyleSheet("color: #00f3ff; background: transparent; border: none;")
+#         else:
+#             if not is_active:
+#                 self.feedback_label.setText("Session paused or waiting...")
+#                 self.feedback_label.setStyleSheet("color: #8a99a6; background: transparent; border: none;")
+
+
+
+
+
+
+
+
+
+
+
+
+
+#                 # הוסיפי את המתודה הזו בסוף מחלקת WorkoutDashboard
+#     def set_sos_ui(self, is_sos):
+#         """משנה את נראות הדשבורד בזמן אמת כשה-SOS מתחיל לרוץ ברקע"""
+#         if is_sos:
+#             self.status_label.setText("⚠️ SOS COUNTDOWN")
+#             self.status_label.setStyleSheet("color: #ff3333; background: transparent; border: none; font-weight: bold;")
+#             self.feedback_label.setText("FALL DETECTED! Starting 10s emergency protocol. Please respond or move!")
+#             self.feedback_label.setStyleSheet("color: #ff3333; font-weight: bold; background: transparent; border: none;")
+#         else:
+#             # יחזור למצב הרגיל בעדכון המדדים הבא
+#             self.status_label.setText("TRAINING")
+#             self.status_label.setStyleSheet("color: #00f3ff; background: transparent; border: none;")
+
+
+
+
+
+
+
+
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QPushButton
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
@@ -272,12 +465,10 @@ class WorkoutDashboard(QFrame):
         # 1. סטטוס המערכת
         self.status_title = QLabel("WORKOUT STATUS")
         self.status_title.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
-        self.status_title.setStyleSheet("color: #8a99a6; background: transparent; border: none;")
         layout.addWidget(self.status_title)
         
         self.status_label = QLabel("READY")
         self.status_label.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        self.status_label.setStyleSheet("color: #00ff66; background: transparent; border: none;")
         layout.addWidget(self.status_label)
         
         # 2. קוביות המדדים המעודכנות
@@ -292,7 +483,6 @@ class WorkoutDashboard(QFrame):
         # 3. אזור הפידבק של ה-AI בזמן אמת
         self.feedback_title = QLabel("AI REAL-TIME FEEDBACK")
         self.feedback_title.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
-        self.feedback_title.setStyleSheet("color: #8a99a6; letter-spacing: 1px; background: transparent; border: none; margin-top: 10px;")
         layout.addWidget(self.feedback_title)
 
         self.feedback_label = QLabel("Waiting for movement pattern...")
@@ -300,115 +490,96 @@ class WorkoutDashboard(QFrame):
         self.feedback_label.setWordWrap(True)
         self.feedback_label.setMinimumHeight(70)
         self.feedback_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        self.feedback_label.setStyleSheet("color: #e2e8f0; background: transparent; border: none; line-height: 16px;")
         layout.addWidget(self.feedback_label)
         
         # 4. כפתור ה-PAUSE / RESUME המעוצב
         self.pause_btn = QPushButton("PAUSE", self)
         self.pause_btn.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
         self.pause_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.pause_btn.setStyleSheet("""
-            QPushButton {
-                color: #00f3ff;
-                background: transparent;
-                border: 1px solid #00f3ff;
-                padding: 8px;
-                border-radius: 5px;
-                margin-top: 10px;
-            }
-            QPushButton:hover { background-color: #09252c; color: #ffffff; }
-        """)
         layout.addWidget(self.pause_btn)
 
         # 5. כפתור ה-QUIT לסיום האימון
         self.exit_session_btn = QPushButton("QUIT", self)
         self.exit_session_btn.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
         self.exit_session_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.exit_session_btn.setStyleSheet("""
-            QPushButton {
-                color: #ff3333;
-                background: transparent;
-                border: 1px solid #ff3333;
-                padding: 8px;
-                border-radius: 5px;
-                margin-top: 5px;
-            }
-            QPushButton:hover { background-color: #2a1111; }
-        """)
         layout.addWidget(self.exit_session_btn)
         
-        # סגנון ה-Frame הכללי של הדשבורד
-        self.setStyleSheet("""
-            QFrame {
-                background-color: #101418;
-                border-radius: 12px;
-                border: 1px solid #1c232a;
-            }
-        """)
+        self.setObjectName("WorkoutDashboard")
+        self.status_title.setObjectName("DashboardStatusTitle")
+        self.status_label.setObjectName("DashboardStatusLabel")
+        self.feedback_title.setObjectName("FeedbackTitle")
+        self.feedback_label.setObjectName("FeedbackLabel")
+        self.pause_btn.setObjectName("PauseBtn")
+        self.exit_session_btn.setObjectName("QuitBtn")
 
     def set_paused_ui(self, is_paused):
         """משנה את הנראות והצבעים של כפתור העצירה בלייב"""
         if is_paused:
             self.pause_btn.setText("RESUME")
-            self.pause_btn.setStyleSheet("""
-                QPushButton {
-                    color: #0c0f12;
-                    background-color: #00ff66;
-                    border: none;
-                    padding: 8px;
-                    border-radius: 5px;
-                    margin-top: 10px;
-                }
-                QPushButton:hover { background-color: #ffffff; }
-            """)
+            self.pause_btn.setProperty("class", "ResumeActive")
             self.status_label.setText("PAUSED")
-            self.status_label.setStyleSheet("color: #f1c40f; background: transparent; border: none;")
+            self.status_label.setProperty("class", "StatusPaused")
         else:
             self.pause_btn.setText("PAUSE")
-            self.pause_btn.setStyleSheet("""
-                QPushButton {
-                    color: #00f3ff;
-                    background: transparent;
-                    border: 1px solid #00f3ff;
-                    padding: 8px;
-                    border-radius: 5px;
-                    margin-top: 10px;
-                }
-                QPushButton:hover { background-color: #09252c; color: #ffffff; }
-            """)
+            self.pause_btn.setProperty("class", "")
             self.status_label.setText("TRAINING")
-            self.status_label.setStyleSheet("color: #00f3ff; background: transparent; border: none;")
+            self.status_label.setProperty("class", "StatusTraining")
+            
+        # רענון סגנון דינמי עבור הלחצנים והסטטוס
+        for widget in [self.pause_btn, self.status_label]:
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
 
     def update_ui_metrics(self, target_goal, reps_left, time_left, is_active, feedback):
         """מעדכן את כל המדדים בצורה בטוחה ומסונכרנת עם ה-MainWindow"""
         self.goal_card.update_value(str(target_goal))
         self.progress_card.update_value(str(reps_left))
         
-        # חישוב הפורמט של הזמן (דקות:שניות) מהשניות שנותרו
         minutes = int(time_left) // 60
         seconds = int(time_left) % 60
         time_string = f"{minutes:02d}:{seconds:02d}"
         self.time_card.update_value(time_string)
         
-        # צביעת הטיק של ה-10 שניות האחרונות באדום להתרעה עיצובית חכמה
         if time_left <= 10 and is_active:
-            self.time_card.value_label.setStyleSheet("color: #ff3333; font-weight: bold; background: transparent;")
+            self.time_card.value_label.setProperty("class", "TimeWarning")
         else:
-            self.time_card.value_label.setStyleSheet("color: #e2e8f0; font-weight: bold; background: transparent;")
+            self.time_card.value_label.setProperty("class", "")
+        self.time_card.value_label.style().unpolish(self.time_card.value_label)
+        self.time_card.value_label.style().polish(self.time_card.value_label)
         
-        # ניהול צבעי פידבק וסטטוס דינמיים
         if feedback:
             self.feedback_label.setText(feedback)
             if "ERROR" in feedback or "FIX" in feedback:
-                self.feedback_label.setStyleSheet("color: #ff3333; font-weight: bold; background: transparent; border: none;")
+                self.feedback_label.setProperty("class", "FeedbackError")
                 self.status_label.setText("FIX FORM")
-                self.status_label.setStyleSheet("color: #ff3333; background: transparent; border: none;")
+                self.status_label.setProperty("class", "StatusError")
             else:
-                self.feedback_label.setStyleSheet("color: #00ff66; font-weight: bold; background: transparent; border: none;")
+                self.feedback_label.setProperty("class", "FeedbackNormal")
                 if is_active:
                     self.status_label.setText("TRAINING")
-                    self.status_label.setStyleSheet("color: #00f3ff; background: transparent; border: none;")
+                    self.status_label.setProperty("class", "StatusTraining")
         else:
             if not is_active:
                 self.feedback_label.setText("Session paused or waiting...")
-                self.feedback_label.setStyleSheet("color: #8a99a6; background: transparent; border: none;")
+                self.feedback_label.setProperty("class", "FeedbackWaiting")
+
+        for widget in [self.feedback_label, self.status_label]:
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+
+    def set_sos_ui(self, is_sos):
+        """משנה את נראות הדשבורד בזמן אמת כשה-SOS מתחיל לרוץ ברקע"""
+        if is_sos:
+            self.status_label.setText("⚠️ SOS COUNTDOWN")
+            self.status_label.setProperty("class", "StatusSos")
+            self.feedback_label.setText("FALL DETECTED! Starting 10s emergency protocol. Please respond or move!")
+            self.feedback_label.setProperty("class", "FeedbackSos")
+        else:
+            self.status_label.setText("TRAINING")
+            self.status_label.setProperty("class", "StatusTraining")
+            self.feedback_label.setProperty("class", "")
+            
+        self.status_label.style().unpolish(self.status_label)
+        self.status_label.style().polish(self.status_label)
+        self.feedback_label.style().unpolish(self.feedback_label)
+        self.feedback_label.style().polish(self.feedback_label)

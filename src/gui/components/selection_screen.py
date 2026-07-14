@@ -74,7 +74,6 @@ class SelectionScreen(QWidget):
         
         self.welcome_label = QLabel("AI NEXUS COACH")
         self.welcome_label.setFont(QFont("Segoe UI", 32, QFont.Weight.Bold))
-        self.welcome_label.setStyleSheet("color: #f8fafc; letter-spacing: 5px;")
         header_layout.addWidget(self.welcome_label, alignment=Qt.AlignmentFlag.AlignCenter)
         header_layout.addStretch(1)
         
@@ -82,10 +81,6 @@ class SelectionScreen(QWidget):
         self.logout_btn.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
         self.logout_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.logout_btn.setFixedWidth(90)
-        self.logout_btn.setStyleSheet("""
-            QPushButton { color: #cbd5e1; background-color: transparent; border: 1px solid #334155; padding: 6px 10px; border-radius: 5px; }
-            QPushButton:hover { border: 1px solid #f1f5f9; background-color: #1e293b; color: #ffffff; }
-        """)
         self.logout_btn.clicked.connect(self.logout_clicked.emit)
         header_layout.addWidget(self.logout_btn, alignment=Qt.AlignmentFlag.AlignRight)
         
@@ -93,7 +88,6 @@ class SelectionScreen(QWidget):
 
         self.sub_label = QLabel("CHOOSE YOUR PROGRAM")
         self.sub_label.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
-        self.sub_label.setStyleSheet("color: #00f3ff; letter-spacing: 2px;")
         main_layout.addWidget(self.sub_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.content_stack = QStackedWidget()
@@ -131,7 +125,7 @@ class SelectionScreen(QWidget):
 
         self.selected_title = QLabel("SELECTED PROGRAM")
         self.selected_title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        self.selected_title.setStyleSheet("color: #f1f5f9; margin-bottom: 5px;")
+        # self.selected_title.setStyleSheet("color: #f1f5f9; margin-bottom: 5px;")
         goal_layout.addWidget(self.selected_title, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.mode_container = QWidget()
@@ -143,22 +137,20 @@ class SelectionScreen(QWidget):
         self.rb_reps = QRadioButton("Count Reps")
         self.rb_static = QRadioButton("Static Hold")
         
-        radio_style = """
-            QRadioButton { color: #94a3b8; font-size: 13px; background: transparent; }
-            QRadioButton:checked { color: #00f3ff; font-weight: bold; }
-        """
+        # radio_style = """
+        #     QRadioButton { color: #94a3b8; font-size: 13px; background: transparent; }
+        #     QRadioButton:checked { color: #00f3ff; font-weight: bold; }
+        # """
         for rb in [self.rb_reps, self.rb_static]:
-            rb.setStyleSheet(radio_style)
             self.mode_group.addButton(rb)
             mode_layout.addWidget(rb)
             
         self.rb_reps.toggled.connect(self.adjust_input_fields_visibility)
         goal_layout.addWidget(self.mode_container, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        label_style = "color: #8a99a6; font-size: 11px; font-weight: bold; letter-spacing: 0.5px; margin-top: 4px;"
+        # label_style = "color: #8a99a6; font-size: 11px; font-weight: bold; letter-spacing: 0.5px; margin-top: 4px;"
         
         self.reps_label = QLabel("🎯 REPS TO BEAT:")
-        self.reps_label.setStyleSheet(label_style)
         goal_layout.addWidget(self.reps_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.input_field = QLineEdit()
@@ -166,46 +158,62 @@ class SelectionScreen(QWidget):
         goal_layout.addWidget(self.input_field, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.time_label = QLabel("⚡ BEAT THE CLOCK (SECONDS):")
-        self.time_label.setStyleSheet(label_style)
         goal_layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.time_field = QLineEdit()
         self.time_field.setFixedWidth(280) 
         goal_layout.addWidget(self.time_field, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        fields_style = """
-            QLineEdit {
-                padding: 11px;
-                font-size: 13px;
-                border: 1px solid #222d37;
-                border-radius: 8px;
-                background-color: #11161b;
-                color: #f1f5f9;
-            }
-            QLineEdit:focus { border: 1px solid #00f3ff; }
-        """
-        self.input_field.setStyleSheet(fields_style)
-        self.time_field.setStyleSheet(fields_style)
+        # fields_style = """
+        #     QLineEdit {
+        #         padding: 11px;
+        #         font-size: 13px;
+        #         border: 1px solid #222d37;
+        #         border-radius: 8px;
+        #         background-color: #11161b;
+        #         color: #f1f5f9;
+        #     }
+        #     QLineEdit:focus { border: 1px solid #00f3ff; }
+        # """
 
         self.start_btn = QPushButton("LAUNCH TRAINING SESSION")
         self.start_btn.setFixedWidth(280)
         self.start_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         self.start_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.start_btn.setStyleSheet("""
-            QPushButton { background-color: #00f3ff; color: #080b0e; padding: 14px; border-radius: 8px; border: none; margin-top: 15px; }
-            QPushButton:hover { background-color: #00bfff; }
-        """)
+       
         self.start_btn.clicked.connect(self.emit_launch)
         goal_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.back_btn = QPushButton("← Back to Exercises")
         self.back_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.back_btn.setStyleSheet("color: #8a99a6; background: transparent; border: none; font-size: 13px; margin-top: 5px;")
         self.back_btn.clicked.connect(self.go_back_to_cards)
         goal_layout.addWidget(self.back_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.content_stack.addWidget(self.goal_widget)
         self.current_card = None
+
+
+
+        self.welcome_label.setObjectName("SelectionWelcome")
+        self.sub_label.setObjectName("SelectionSub")
+        self.selected_title.setObjectName("SelectedProgramTitle")
+        self.logout_btn.setObjectName("LogoutBtn")
+        self.start_btn.setObjectName("LaunchBtn")
+        self.back_btn.setObjectName("LinkBtn")
+        self.back_btn.setProperty("class", "BackExercisesBtn")
+        self.reps_label.setObjectName("SelectionGoalLabel")
+        self.time_label.setObjectName("SelectionGoalLabel")
+        self.input_field.setObjectName("SelectionInput")
+        self.time_field.setObjectName("SelectionInput")
+
+
+        
+        # self.welcome_label.setObjectName("SelectionWelcome")
+        # self.sub_label.setObjectName("SelectionSub")
+        # self.selected_title.setObjectName("SelectedProgramTitle")
+        # self.logout_btn.setObjectName("LogoutBtn")
+        # self.start_btn.setObjectName("LaunchBtn")
+        # self.back_btn.setObjectName("LinkBtn")
 
     def select_exercise(self, card_object):
         self.current_card = card_object

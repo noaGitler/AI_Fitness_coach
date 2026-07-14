@@ -13,25 +13,18 @@ class StatsCard(QFrame):
         
         self.title_label = QLabel(title.upper())
         self.title_label.setFont(QFont("Segoe UI", 9, QFont.Weight.Bold))
-        self.title_label.setStyleSheet("color: #8a99a6; letter-spacing: 1px; background: transparent; border: none;")
         layout.addWidget(self.title_label, alignment=Qt.AlignmentFlag.AlignLeft)
         
         self.value_label = QLabel(str(initial_value))
         self.value_label.setFont(QFont("Segoe UI", 32, QFont.Weight.Bold))
-        self.value_label.setStyleSheet("color: #ffffff; background: transparent; border: none;")
         layout.addWidget(self.value_label, alignment=Qt.AlignmentFlag.AlignRight)
         
-        # תיקון סופי לקארד: מגדירים במפורש ל-QFrame!
-        self.setStyleSheet("""
-            QFrame {
-                background-color: #161a1e;
-                border: 1px solid #222a31;
-                border-radius: 10px;
-            }
-            QFrame:hover {
-                border: 1px solid #00f3ff;
-            }
-        """)
+      
+        self.setObjectName("StatsCard")
+        self.title_label.setObjectName("StatsTitle")
+        self.value_label.setObjectName("StatsValue")
+
+
 
     def update_value(self, new_value):
         self.value_label.setText(str(new_value))

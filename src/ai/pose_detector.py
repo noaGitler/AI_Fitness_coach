@@ -101,7 +101,7 @@ class PoseDetector:
 
         # שידור המדדים בצורה אסינכרונית בטוחה לחלון הראשי ללא חסימת ה-GUI
         if self.worker_ref is not None:
-            self.worker_ref.metrics_ready.emit(float(current_angle), str(exercise.feedback))
+            self.worker_ref.metrics_ready.emit(current_angle, feedback_text)
         
         if exercise is not None and self.worker_ref is not None:
             # משדרים את הזווית העדכנית ואת מחרוזת הפידבק שנבנתה בתרגיל

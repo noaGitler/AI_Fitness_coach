@@ -55,6 +55,14 @@ class VideoWorker(QThread):
                     if self.main_window_ref and hasattr(self.main_window_ref, 'session_manager'):
                         is_paused_now = self.main_window_ref.session_manager.is_paused
 
+                   # 4. עיבוד ה-AI (ספירת חזרות וציור שלד) - מאפשרים ריצה גם בחשד זמני כדי למנוע קפיצות במסך
+                    # if not is_paused_now and not alarm_triggered:
+                    #     frame = self.detector.process(frame, exercise=self.current_exercise)
+                    # elif is_paused_now:
+                    #     # במצב פאוז מאפסים מדדים ב-UI
+                    #     self.metrics_ready.emit(0.0, "")
+
+
                     # 4. עיבוד ה-AI (ספירת חזרות וציור שלד) - מתבצע פעם אחת בלבד!
                     if not is_paused_now and not self.fall_detector.was_low_in_last_frame and not alarm_triggered:
                         frame = self.detector.process(frame, exercise=self.current_exercise)

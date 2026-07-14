@@ -15,12 +15,10 @@ class LoginScreen(QWidget):
 
         title = QLabel("NEXUS LOGIN")
         title.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff; letter-spacing: 4px;")
         layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
 
         subtitle = QLabel("SECURE ACCESS PORTAL")
         subtitle.setFont(QFont("Segoe UI", 10))
-        subtitle.setStyleSheet("color: #8a99a6; letter-spacing: 2px; margin-bottom: 20px;")
         layout.addWidget(subtitle, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.username_input = QLineEdit()
@@ -32,49 +30,34 @@ class LoginScreen(QWidget):
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.password_input.setFixedWidth(280)
 
-        input_style = """
-            QLineEdit {
-                padding: 12px;
-                font-size: 14px;
-                border: 1px solid #222a31;
-                border-radius: 6px;
-                background-color: #101418;
-                color: #ffffff;
-            }
-            QLineEdit:focus { border: 1px solid #00f3ff; }
-        """
-        self.username_input.setStyleSheet(input_style)
-        self.password_input.setStyleSheet(input_style)
+        
 
         layout.addWidget(self.username_input, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.password_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.error_label = QLabel("")
-        self.error_label.setStyleSheet("color: #ff3333; font-size: 12px;")
         layout.addWidget(self.error_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.login_btn = QPushButton("CONNECT TO SYSTEM")
         self.login_btn.setFixedWidth(280)
         self.login_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         self.login_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.login_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #00f3ff;
-                color: #101418;
-                padding: 12px;
-                border-radius: 6px;
-                border: none;
-            }
-            QPushButton:hover { background-color: #00bfff; }
-        """)
+        
         self.login_btn.clicked.connect(self.handle_login)
         layout.addWidget(self.login_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.register_link = QPushButton("New user? Create a secure profile →")
         self.register_link.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.register_link.setStyleSheet("color: #8a99a6; background: transparent; border: none; font-size: 12px; margin-top: 10px;")
         self.register_link.clicked.connect(self.go_to_register.emit)
         layout.addWidget(self.register_link, alignment=Qt.AlignmentFlag.AlignCenter)
+
+
+        title.setObjectName("LoginTitle")
+        subtitle.setObjectName("LoginSubtitle")
+        self.error_label.setObjectName("ErrorLabel")
+        self.login_btn.setObjectName("ConnectBtn")
+        self.register_link.setObjectName("LinkBtn")
+
 
     def handle_login(self):
         user = self.username_input.text().strip()
@@ -97,33 +80,18 @@ class RegisterScreen(QWidget):
 
         title = QLabel("CREATE PROFILE")
         title.setFont(QFont("Segoe UI", 24, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff; letter-spacing: 3px;")
         layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # עיצוב לשדות הקלט הרגילים
-        input_style = """
-            QLineEdit {
-                padding: 10px;
-                font-size: 13px;
-                border: 1px solid #222a31;
-                border-radius: 6px;
-                background-color: #101418;
-                color: #ffffff;
-            }
-            QLineEdit:focus { border: 1px solid #00f3ff; }
-        """
+        
 
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Choose Username")
         self.user_input.setFixedWidth(300)
-        self.user_input.setStyleSheet(input_style)
         layout.addWidget(self.user_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.pwd_input = QLineEdit()
         self.pwd_input.setPlaceholderText("Choose Password")
         self.pwd_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.pwd_input.setFixedWidth(300)
-        self.pwd_input.setStyleSheet(input_style)
         layout.addWidget(self.pwd_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # עיגולי בחירת מין
@@ -144,7 +112,6 @@ class RegisterScreen(QWidget):
             QRadioButton:checked { color: #00f3ff; font-weight: bold; }
         """
         for rb in [self.rb_female, self.rb_male, self.rb_other]:
-            rb.setStyleSheet(radio_style)
             self.gender_group.addButton(rb)
             gender_layout.addWidget(rb)
         layout.addWidget(gender_box, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -156,12 +123,10 @@ class RegisterScreen(QWidget):
         self.age_input = QLineEdit()
         self.age_input.setPlaceholderText("Age")
         self.age_input.setFixedWidth(145)
-        self.age_input.setStyleSheet(input_style)
         
         self.height_input = QLineEdit()
         self.height_input.setPlaceholderText("Height (cm)")
         self.height_input.setFixedWidth(145)
-        self.height_input.setStyleSheet(input_style)
         
         row_bio.addWidget(self.age_input)
         row_bio.addWidget(self.height_input)
@@ -171,88 +136,60 @@ class RegisterScreen(QWidget):
         self.weight_input = QLineEdit()
         self.weight_input.setPlaceholderText("Weight (kg)")
         self.weight_input.setFixedWidth(300)
-        self.weight_input.setStyleSheet(input_style)
         layout.addWidget(self.weight_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # חלק ג': אנשי קשר וחירום
         contact_title = QLabel("IN CASE OF EMERGENCY (SOS)")
         contact_title.setFont(QFont("Segoe UI", 8, QFont.Weight.Bold))
-        contact_title.setStyleSheet("color: #00f3ff; letter-spacing: 1px; margin-top: 5px;")
         layout.addWidget(contact_title, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.ice_name_input = QLineEdit()
         self.ice_name_input.setPlaceholderText("Private Contact Name (e.g., Father)")
         self.ice_name_input.setFixedWidth(300)
-        self.ice_name_input.setStyleSheet(input_style)
         layout.addWidget(self.ice_name_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.ice_phone_input = QLineEdit()
         self.ice_phone_input.setPlaceholderText("Private Contact Phone")
         self.ice_phone_input.setFixedWidth(300)
-        self.ice_phone_input.setStyleSheet(input_style)
         layout.addWidget(self.ice_phone_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # כותרת לשירות ההצלה
         service_title = QLabel("SELECT NATIONAL EMERGENCY SERVICE")
         service_title.setFont(QFont("Segoe UI", 8, QFont.Weight.Bold))
-        service_title.setStyleSheet("color: #8a99a6; letter-spacing: 0.5px; margin-top: 3px;")
         layout.addWidget(service_title, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # יצירת התיבה הנפתחת
         self.official_service_input = QComboBox()
         self.official_service_input.setFixedWidth(300)
         
-        # תיקון הקסם של הסטייל-שיט: מגדירים במפורש את הטקסט של האופציות (color: #ffffff) 
-        # וגם את הרקע של התפריט הנפתח (QAbstractItemView) כדי שלא יישאר שחור מוסתר!
-        self.official_service_input.setStyleSheet("""
-            QComboBox {
-                padding: 10px;
-                font-size: 13px;
-                border: 1px solid #222a31;
-                border-radius: 6px;
-                background-color: #101418;
-                color: #ffffff;
-            }
-            QComboBox:focus { border: 1px solid #00f3ff; }
-            QComboBox QAbstractItemView {
-                background-color: #101418;
-                color: #ffffff;
-                selection-background-color: #00f3ff;
-                selection-color: #101418;
-                border: 1px solid #222a31;
-            }
-        """)
         
         # הוספת האופציות בסוף, אחרי החלת הסטייל, כדי למנוע את דריסת הטקסטים
         self.official_service_input.addItems(["MADA Ambulance (101)", "Israel Police (100)"])
         layout.addWidget(self.official_service_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.error_label = QLabel("")
-        self.error_label.setStyleSheet("color: #ff3333; font-size: 11px;")
         layout.addWidget(self.error_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.register_btn = QPushButton("INITIALIZE SECURE PROFILE")
         self.register_btn.setFixedWidth(300)
         self.register_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         self.register_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.register_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #00ff66;
-                color: #101418;
-                padding: 12px;
-                border-radius: 6px;
-                border: none;
-            }
-            QPushButton:hover { background-color: #00cc55; }
-        """)
         self.register_btn.clicked.connect(self.handle_registration)
         layout.addWidget(self.register_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.back_btn = QPushButton("← Already registered? Log in")
         self.back_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.back_btn.setStyleSheet("color: #8a99a6; background: transparent; border: none; font-size: 12px;")
         self.back_btn.clicked.connect(self.go_to_login.emit)
         layout.addWidget(self.back_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+
+        title.setObjectName("RegisterTitle")
+        contact_title.setObjectName("ContactTitle")
+        service_title.setObjectName("ServiceTitle")
+        self.error_label.setObjectName("ErrorLabel")
+        self.register_btn.setObjectName("RegisterBtn")
+        self.back_btn.setObjectName("LinkBtn")
+
 
     def handle_registration(self):
         user = self.user_input.text().strip()
