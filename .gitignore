@@ -1,0 +1,25 @@
+# venv/
+# __pycache__/
+# *.h5
+# *.pt
+# *.weights
+# .env
+
+
+
+# Virtual environment
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Models
+*.h5
+*.pt
+*.pth
+*.weights
+
+# Environment variables
+.env

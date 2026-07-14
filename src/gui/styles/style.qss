@@ -1,0 +1,243 @@
+/* ==========================================================================
+   GLOBAL APPLICATION & MAIN WINDOWS
+   ========================================================================== */
+QMainWindow, QWidget#MainWindow {
+    background-color: #0c0f12;
+}
+
+/* אלמנטים מפוצלים: חלונית הוידאו וחלונית הדמו */
+/* אלמנטים מפוצלים: חלונית הוידאו וחלונית הדמו */
+QWidget#VideoWidget, QFrame#VideoWidget {
+    background-color: #101418;
+    border: 2px solid #222a31;
+    border-radius: 12px;
+}
+
+QWidget#DemoWidget, QFrame#DemoWidget {
+    background-color: #101418;
+    border: 2px solid #00f3ff; /* מסגרת כחול ניאון קבועה, זוהרת ומוארת מסביב לרובוט */
+    border-radius: 12px;
+}
+
+/* ==========================================================================
+   BASIC CONTROLS (INPUTS, RADIOS, COMBOBOX)
+   ========================================================================== */
+QLineEdit, QComboBox {
+    padding: 11px;
+    font-size: 13px;
+    border: 1px solid #222a31;
+    border-radius: 6px;
+    background-color: #101418;
+    color: #ffffff;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border: 1px solid #00f3ff;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #101418;
+    color: #ffffff;
+    selection-background-color: #00f3ff;
+    selection-color: #101418;
+    border: 1px solid #222a31;
+}
+
+QRadioButton {
+    color: #94a3b8;
+    font-size: 13px;
+    background: transparent;
+}
+
+QRadioButton:checked {
+    color: #00f3ff;
+    font-weight: bold;
+}
+
+/* שדות קלט ספציפיים למסך בחירת יעד */
+QLineEdit#SelectionInput {
+    border: 1px solid #222d37;
+    border-radius: 8px;
+    background-color: #11161b;
+    color: #f1f5f9;
+}
+QLineEdit#SelectionInput:focus { 
+    border: 1px solid #00f3ff; 
+}
+
+/* ==========================================================================
+   TITLES & LABELS (SPECIFIC OBJECTS)
+   ========================================================================== */
+QLabel#LoginTitle { color: #ffffff; letter-spacing: 4px; }
+QLabel#LoginSubtitle { color: #8a99a6; letter-spacing: 2px; }
+QLabel#RegisterTitle { color: #ffffff; letter-spacing: 3px; }
+QLabel#ContactTitle { color: #00f3ff; letter-spacing: 1px; }
+QLabel#ServiceTitle { color: #8a99a6; letter-spacing: 0.5px; }
+QLabel#SelectionWelcome { color: #f8fafc; letter-spacing: 5px; }
+QLabel#SelectionSub { color: #00f3ff; letter-spacing: 2px; }
+QLabel#SelectedProgramTitle { color: #f1f5f9; margin-bottom: 5px; }
+QLabel#DashboardStatusTitle { color: #8a99a6; background: transparent; border: none; }
+QLabel#FeedbackTitle { color: #8a99a6; letter-spacing: 1px; }
+
+QLabel#SelectionGoalLabel {
+    color: #8a99a6; 
+    font-size: 11px; 
+    font-weight: bold; 
+    letter-spacing: 0.5px; 
+    margin-top: 4px;
+}
+
+QLabel#ErrorLabel {
+    color: #ff3333;
+    background: transparent;
+}
+
+/* ==========================================================================
+   BUTTONS SYSTEM
+   ========================================================================== */
+/* כפתורי חיבור ומערכת ראשיים (טורקיז) */
+QPushButton#ConnectBtn, QPushButton#LaunchBtn {
+    background-color: #00f3ff;
+    color: #101418;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+}
+QPushButton#ConnectBtn:hover, QPushButton#LaunchBtn:hover {
+    background-color: #00bfff;
+}
+
+/* כפתור הפעלת אימון ייעודי עם מרווח עליון מותאם */
+QPushButton#LaunchBtn {
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+/* כפתורי הצלחה/הרשמה (ירוק) */
+QPushButton#RegisterBtn {
+    background-color: #00ff66;
+    color: #101418;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+}
+QPushButton#RegisterBtn:hover {
+    background-color: #00cc55;
+}
+
+/* קישורים טקסטואליים שקופים */
+QPushButton#LinkBtn {
+    color: #8a99a6;
+    background: transparent;
+    border: none;
+}
+QPushButton#LinkBtn:hover {
+    color: #ffffff;
+}
+QPushButton#LinkBtn#BackExercisesBtn {
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+/* כפתורי מסגרת (Logout, Pause, Quit) */
+QPushButton#LogoutBtn {
+    color: #cbd5e1;
+    background-color: transparent;
+    border: 1px solid #334155;
+    padding: 6px 10px;
+    border-radius: 5px;
+}
+QPushButton#LogoutBtn:hover {
+    border: 1px solid #f1f5f9;
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+QPushButton#PauseBtn {
+    color: #00f3ff;
+    background: transparent;
+    border: 1px solid #00f3ff;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+QPushButton#PauseBtn:hover {
+    background-color: #09252c;
+    color: #ffffff;
+}
+
+QPushButton#QuitBtn {
+    color: #ff3333;
+    background: transparent;
+    border: 1px solid #ff3333;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+QPushButton#QuitBtn:hover {
+    background-color: #2a1111;
+}
+
+/* ==========================================================================
+   COMPONENTS & CARDS
+   ========================================================================== */
+/* StatsCard */
+QFrame#StatsCard {
+    background-color: #161a1e;
+    border: 1px solid #222a31;
+    border-radius: 10px;
+}
+QFrame#StatsCard:hover {
+    border: 1px solid #00f3ff;
+}
+
+/* WorkoutDashboard Container */
+QFrame#WorkoutDashboard {
+    background-color: #101418;
+    border-radius: 12px;
+    border: 1px solid #1c232a;
+}
+
+/* ==========================================================================
+   EMERGENCY OVERLAY SPECIFIC STYLES
+   ========================================================================== */
+QWidget#EmergencyOverlay {
+    background-color: rgba(200, 0, 0, 120);
+    border-radius: 15px;
+}
+QLabel#EmergencyText {
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    background: transparent;
+}
+
+
+
+
+
+/* תיקון סופי לטקסטים החשוכים והחלשים בתוך כרטיסי המדדים */
+QLabel#StatsTitle {
+    color: #8a99a6 !important;
+    background: transparent;
+}
+QLabel#StatsValue {
+    color: #ffffff !important;
+    background: transparent;
+}
+
+/* עיצוב ייעודי לכפתור הרובוט שלא יימחץ וייראה פרופורציונלי */
+QPushButton#ReplayDemoBtn {
+    color: #00f3ff;
+    background-color: #101418;
+    border: 1px solid #00f3ff;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-top: 5px;
+    min-height: 26px;
+}
+QPushButton#ReplayDemoBtn:hover {
+    background-color: #00f3ff;
+    color: #101418;
+}
