@@ -1,60 +1,3 @@
-# from src.ai.exercises.base_exercise import BaseExercise
-# from src.ai.angle_calculator import AngleCalculator
-
-# class Squat(BaseExercise):
-#     def __init__(self):
-#         # אתחול המשתנים מהמחלקת אב (BaseExercise)
-#         super().__init__()
-#         self.target_goal = 0
-#         self.reps_left = "0"
-#         self.goal_finished = False
-#         self.feedback = "Get in position!"
-
-#     def set_target_goal(self, goal):
-#         self.target_goal = goal
-#         self.reps_left = str(goal)
-#         self.counter = 0
-
-#     def check(self, landmarks):
-#         # 1. בדיקת נראות בסיסית
-#         if not landmarks or len(landmarks) < 28:
-#             return 0, self.counter
-
-#         # 2. חילוץ נקודות
-#         hip = landmarks[24]
-#         knee = landmarks[26]
-#         ankle = landmarks[28]
-
-#         # 3. חישוב זווית הברך (פעם אחת בלבד!)
-#         angle = AngleCalculator.calculate_angle(
-#             [hip.x, hip.y], 
-#             [knee.x, knee.y], 
-#             [ankle.x, ankle.y]
-#         )
-
-#         # 4. לוגיקת ספירת חזרות, בונוסים ועדכון פידבק
-#         if angle > 160:
-#             self.stage = "up"
-#         elif angle < 90 and self.stage == 'up':
-#             self.stage = "down"
-#             self.counter += 1
-            
-#             # לוגיקת ספירה לאחור ובונוסים
-#             remaining = int(self.target_goal) - self.counter
-            
-#             if remaining > 0:
-#                 self.reps_left = str(remaining)
-#                 self.feedback = f"{remaining} reps left!"
-#             elif remaining == 0:
-#                 self.reps_left = "0"
-#                 self.feedback = "Goal reached! Keep going for bonus!"
-#             else:
-#                 bonus_count = self.counter - int(self.target_goal)
-#                 self.reps_left = "0"
-#                 self.feedback = f"BONUS {bonus_count}!"
-            
-#         return angle, self.counter
-    
 from src.ai.exercises.base_exercise import BaseExercise
 from src.ai.angle_calculator import AngleCalculator
 import numpy as np
@@ -96,7 +39,7 @@ class Squat(BaseExercise):
         # --- הוספת מנגנון אימות זווית צילום (צדדי) ---
         # השוואת עומק הכתף והירך כדי לוודא עמידה מהצד
         # אם הכתף והירך באותו מישור עומק (x דומה), זה אומר שהמתאמן עומד נכון
-        is_side_view = abs(shoulder_lm.x - hip_lm.x) < 0.15
+        is_side_view = abs(shoulder_lm.x - hip_lm.x) < 0.25
 
         if not is_side_view:
             self.feedback = "Please stand sideways!"
