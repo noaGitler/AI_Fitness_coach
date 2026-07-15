@@ -5,8 +5,6 @@ QMainWindow, QWidget#MainWindow {
     background-color: #0c0f12;
 }
 
-/* אלמנטים מפוצלים: חלונית הוידאו וחלונית הדמו */
-/* אלמנטים מפוצלים: חלונית הוידאו וחלונית הדמו */
 QWidget#VideoWidget, QFrame#VideoWidget {
     background-color: #101418;
     border: 2px solid #222a31;

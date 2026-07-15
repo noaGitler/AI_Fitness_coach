@@ -4,6 +4,7 @@ from PyQt6.QtCore import pyqtSignal as Signal
 from PyQt6.QtGui import QFont
 
 class LoginScreen(QWidget):
+    """The login screen: username/password fields and a link to registration."""
     login_requested = Signal(str, str)
     go_to_register = Signal()
 
@@ -69,6 +70,7 @@ class LoginScreen(QWidget):
 
 
 class RegisterScreen(QWidget):
+    """The registration screen: account details, bio fields, and emergency contacts."""
     register_requested = Signal(str, str, str, int, float, float, str, str, str)
     go_to_login = Signal()
 
@@ -94,7 +96,6 @@ class RegisterScreen(QWidget):
         self.pwd_input.setFixedWidth(300)
         layout.addWidget(self.pwd_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # עיגולי בחירת מין
         gender_box = QWidget()
         gender_box.setFixedWidth(300)
         gender_layout = QHBoxLayout(gender_box)
@@ -116,7 +117,6 @@ class RegisterScreen(QWidget):
             gender_layout.addWidget(rb)
         layout.addWidget(gender_box, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # שורה משולבת לגיל וגובה
         row_bio = QHBoxLayout()
         row_bio.setSpacing(10)
         
@@ -132,13 +132,12 @@ class RegisterScreen(QWidget):
         row_bio.addWidget(self.height_input)
         layout.addLayout(row_bio)
 
-        # משקל
         self.weight_input = QLineEdit()
         self.weight_input.setPlaceholderText("Weight (kg)")
         self.weight_input.setFixedWidth(300)
         layout.addWidget(self.weight_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # חלק ג': אנשי קשר וחירום
+        # Part 3: emergency contacts
         contact_title = QLabel("IN CASE OF EMERGENCY (SOS)")
         contact_title.setFont(QFont("Segoe UI", 8, QFont.Weight.Bold))
         layout.addWidget(contact_title, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -153,17 +152,14 @@ class RegisterScreen(QWidget):
         self.ice_phone_input.setFixedWidth(300)
         layout.addWidget(self.ice_phone_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # כותרת לשירות ההצלה
         service_title = QLabel("SELECT NATIONAL EMERGENCY SERVICE")
         service_title.setFont(QFont("Segoe UI", 8, QFont.Weight.Bold))
         layout.addWidget(service_title, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # יצירת התיבה הנפתחת
         self.official_service_input = QComboBox()
         self.official_service_input.setFixedWidth(300)
         
         
-        # הוספת האופציות בסוף, אחרי החלת הסטייל, כדי למנוע את דריסת הטקסטים
         self.official_service_input.addItems(["MADA Ambulance (101)", "Israel Police (100)"])
         layout.addWidget(self.official_service_input, alignment=Qt.AlignmentFlag.AlignCenter)
 

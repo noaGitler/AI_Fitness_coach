@@ -5,6 +5,10 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 class FallDetector:
+    """
+    Safety component: detects falls/lying-on-the-floor states from pose
+    landmarks and drives the emergency SOS countdown.
+    """
     def __init__(self):
         print("[SAFETY] Initializing Emergency Fall Detector...")
         model_path = 'pose_landmarker_full.task'
@@ -14,51 +18,43 @@ class FallDetector:
         )
         self.detector = vision.PoseLandmarker.create_from_options(options)
         
-        # משתני מצב של המערכת המקורית
+        # Core state variables
         self.is_locked = False 
         self.system_initialized = False 
         self.was_low_in_last_frame = False 
         self.fall_start_time = None
         self.pending_speech = None
 
-        # משתנים חדשים ללוגיקת ה"איש מת" (זיהוי תנועה בשכיבה)
+        # "Dead-man" logic state (detecting movement while lying down)
         self.inactivity_timer_start = None
         self.prev_landmarks = None
 
-    # ==========================================
-    # פונקציות עזר לניהול זמנים ומצבים
-    # ==========================================
+    # Timer / state helper functions
     def reset_timers(self):
-        """פונקציה שמאפסת את כל הטיימרים כשיש סימני חיים או כשקמים"""
         self.inactivity_timer_start = None
         self.fall_start_time = None
 
     def lock_system(self):
-        """פונקציה שנועלת את המערכת במצב חירום"""
         self.is_locked = True
         self.reset_timers()
-        self.system_initialized = False # דורש אתחול מחדש לאחר הנעילה
+        self.system_initialized = False 
         print("[ALERT] Emergency protocol activated - LOCKING SYSTEM")
 
     def safe_lock_system(self):
-        """פונקציה שנועלת את המערכת למנוחה (ללא קריאה לעזרה)"""
         self.is_locked = True
         self.reset_timers()
-        self.system_initialized = False # דורש שהמתאמן יקום כדי לאתחל
+        self.system_initialized = False 
         print("[SAFETY] Vital signs confirmed. Workout paused. Please stand up to resume.")
 
 
-    # ==========================================
-    # פונקציות לטיפול במצבי המתאמן
-    # ==========================================
+    # Functions handling the trainee's state
     def handle_missing_user(self, frame):
-        """פונקציה שמנתחת מצב בו המתאמן נעלם בפתאומיות מהפריים"""
         if not self.system_initialized:
             cv2.putText(frame, "Waiting for user to enter...", (30, 50), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 165, 0), 2)
             return frame, False
             
-        # אם הוא היה מאותחל ונעלם לאחר שהיה נמוך - זו סכנת נפילה!
+        # If the system was initialized and the user disappeared after being low - fall risk!
         if self.was_low_in_last_frame:
             if self.fall_start_time is None:
                 self.fall_start_time = time.time()
@@ -76,7 +72,7 @@ class FallDetector:
         return frame, False
 
     def calculate_max_distance(self, current_landmarks, reference_landmarks):
-        """פונקציית עזר לחישוב מרחק מקסימלי מהתנוחה השמורה (תנוחת הבסיס על הרצפה)"""
+        """Helper: calculates the max distance moved from the saved reference pose (the pose on the floor)."""
         if reference_landmarks is None:
             return 0
             
@@ -92,37 +88,34 @@ class FallDetector:
         return max_dist
 
     def handle_lying_state(self, frame, current_landmarks):
-        """מנתחת שכיבה - כולל זמן התייצבות למניעת זיהוי תנועת הנפילה כסימן חיים"""
+        """Helper function to handle the lying state - including inactivity timer to prevent false fall detections"""
         if self.inactivity_timer_start is None:
             self.inactivity_timer_start = time.time()
-            self.prev_landmarks = current_landmarks # קביעת רפרנס התחלתי
+            self.prev_landmarks = current_landmarks 
             
         elapsed = time.time() - self.inactivity_timer_start
         
-        # חישוב התזוזה מהרגע שהתייצבנו על הרצפה
         dist = self.calculate_max_distance(current_landmarks, self.prev_landmarks)
         
         if elapsed < 2.0:
-            # ב-2 השניות הראשונות מאז שהאגן ירד נמוך, המתאמן עוד נופל/מתייצב.
-            # לכן אנחנו מעדכנים את תמונת ה"רפרנס" ולא מחפשים סימני חיים עדיין.
+            # During the first 2 seconds after the hip dropped low, the trainee may
+            # still be falling/settling. So we keep updating the reference pose and
+            # don't look for signs of life yet.
             self.prev_landmarks = current_landmarks
         else:
-            # עברו 2 שניות. הגוף נח. עכשיו כל תזוזה של מעל 0.05 מהרפרנס היא סימן חיים!
             if dist > 0.05:
                 print(f"[DEBUG] Vital signs detected! (Moved: {dist:.3f}). Entering Safe-Lock.")
                 self.safe_lock_system()
                 return frame, False
                 
-        if elapsed >= 10.0:  # 10 שניות מהנפילה - אזעקה!
+        if elapsed >= 10.0:  
             self.lock_system()
             return frame, True
             
-        # מציג את הספירה על המסך כדי שתוכלי לדבג ולראות מתי זה מזהה תנועה
         cv2.putText(frame, f"SOS in: {10.0 - elapsed:.1f}s", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 165, 255), 2)
         return frame, False
 
     def handle_present_user(self, frame, detection_result):
-        """פונקציה שמאתחלת או מנתחת מתאמן שנמצא כרגע בפריים"""
         landmarks_list = detection_result.pose_landmarks[0]
         current_landmarks = landmarks_list.landmark if hasattr(landmarks_list, 'landmark') else landmarks_list
         
@@ -136,15 +129,8 @@ class FallDetector:
         if left_hip.visibility < 0.5 or right_hip.visibility < 0.5:
             cv2.putText(frame, "Adjust camera: Need full body for tracking", (30, 50), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-            # מאפסים טיימרים כדי שלא תופעל אזעקה בטעות
             self.reset_timers()
             return frame, False
-
-        # תיקון בעיית ההסתרה: אם לא רואים את האגן, אבל כבר היינו בשכיבה - תמשיך לספור!
-        # if left_hip.visibility < 0.5 or right_hip.visibility < 0.5:
-        #     if self.was_low_in_last_frame and not self.is_locked:
-        #         return self.handle_lying_state(frame, current_landmarks)
-        #     return frame, False
 
         mid_hip_y = (left_hip.y + right_hip.y) / 2
 
@@ -157,7 +143,7 @@ class FallDetector:
             return frame, False
 
         if mid_hip_y <= 0.8:
-            # המתאמן עומד
+            # Trainee is standing
             if not self.system_initialized:
                 print("[SAFETY] User stabilized. Protection ACTIVE.")
             self.system_initialized = True
@@ -165,7 +151,7 @@ class FallDetector:
             self.reset_timers()
             return frame, False
         else:
-            # המתאמן ירד נמוך
+            # Trainee dropped low
             self.was_low_in_last_frame = True
             if self.system_initialized:
                 return self.handle_lying_state(frame, current_landmarks)
@@ -173,32 +159,29 @@ class FallDetector:
         return frame, False
 
     def is_partially_visible(self, landmarks):
-        """בודק אם רואים לפחות חלק מהגוף (ראש או כתפיים)"""
-        # אף (0), כתף שמאל (11), כתף ימין (12)
-        # נבדוק אם לפחות אחת מהנקודות האלה מזוהה בבירור
+        """Checks if at least part of the body is visible (head or shoulders)"""
+        # Nose (0), Left Shoulder (11), Right Shoulder (12)
+        # Check if at least one of these points is clearly visible
         return (landmarks[0].visibility > 0.5 or 
                 landmarks[11].visibility > 0.5 or 
                 landmarks[12].visibility > 0.5)
     
 
-    # ==========================================
-    # הפונקציה הראשית שמנהלת את הכל
-    # ==========================================
+    # The main function that manages everything
     def process_frame(self, frame, is_workout_active=False):
         if not is_workout_active:
-            # איפוס מוחלט בתום האימון
             self.is_locked = False
             self.was_low_in_last_frame = False
             self.system_initialized = False 
             self.reset_timers()
             return frame, False
         
-        # המרת תמונה ל-MediaPipe
+        # Convert the image for MediaPipe
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb)
         detection_result = self.detector.detect(mp_image)
         
-        # פיצול לוגי: יש או אין אדם בפריים
+        # Logical split: there is or is not a person in the frame
         if not detection_result.pose_landmarks:
             return self.handle_missing_user(frame)
         else:

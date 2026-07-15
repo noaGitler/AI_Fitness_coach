@@ -5,7 +5,7 @@ import cv2
 import os
 
 class VideoWidget(QLabel):
-    """חלונית המצלמה החיה של המתאמן - מוגדלת לחוויית UX מקסימלית"""
+    """The trainee's live camera feed widget, enlarged for maximum UX."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -38,9 +38,8 @@ class VideoWidget(QLabel):
 
 
 class DemoVideoWidget(QLabel):
-    """חלונית הדגמה מקצועית - מניחה שכל הסרטונים נורמלו לחזרה 1 ומריצה אותם פעמיים"""
+    """A small widget that plays a looping demo clip of the correct exercise form."""
     
-    # מילון נקי, פשוט ויעיל של מפתח-ערך
     VIDEO_MAPPING = {
         "knee_extension": "assets/robot_knee.mp4",
         "knee extension": "assets/robot_knee.mp4",
@@ -70,8 +69,7 @@ class DemoVideoWidget(QLabel):
         self.setGraphicsEffect(shadow)
         
         self.demo_cap = None
-        self.max_loops = 2  # כל סרטון במערכת יתנגן בדיוק פעמיים ברצף!
-        self.loop_count = 0
+        self.max_loops = 2  # every clip plays exactly twice in a row
         
         self.play_timer = QTimer(self)
         self.play_timer.timeout.connect(self.play_next_frame)
@@ -119,8 +117,8 @@ class DemoVideoWidget(QLabel):
         if not ret:
             self.loop_count += 1
             if self.loop_count >= self.max_loops:
-                # סיום הלולאות: עצירה חזרה בפריים 0 (עמידת מוצא ישר) למניעת פריים קפוא באמצע תנועה
-                self.play_timer.stop()
+                # Loops finished: rewind to frame 0 (starting pose) to avoid
+                # freezing on a mid-movement frame                self.play_timer.stop()
                 self.demo_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 ret_reset, reset_frame = self.demo_cap.read()
                 if ret_reset:
@@ -156,6 +154,7 @@ class DemoVideoWidget(QLabel):
         super().closeEvent(event)
 
 
+<<<<<<< HEAD
 
 
 
@@ -284,3 +283,5 @@ class DemoVideoWidget(QLabel):
         
 # #         scaled_pixmap = pixmap.scaled(self.width(), self.height(), Qt.AspectRatioMode.KeepAspectRatio)
 # #         self.setPixmap(scaled_pixmap)
+=======
+>>>>>>> 4b4a6ac339ae7330e4f0e1c9cb49c868c6b37b84

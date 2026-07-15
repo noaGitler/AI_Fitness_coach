@@ -3,6 +3,10 @@ from src.ai.angle_calculator import AngleCalculator
 import numpy as np
 
 class StandingKneeExtension(BaseExercise):
+    """
+    Rep-counting and form-checking logic for the standing knee extension
+    exercise (leg lifted to passé, then kicked forward).
+    """
     def __init__(self):
         super().__init__()
         self.feedback = "Stand in profile to the camera." 
@@ -14,16 +18,16 @@ class StandingKneeExtension(BaseExercise):
         
         self.stage = 'START' 
         
-        # מונים לסינון רעשים ויזואליים על המסך (Smoothing Filters)
+        # Frame counters used to smooth out noisy on-screen posture warnings
         self.leg_error_frames = 0
         self.back_error_frames = 0
         self.front_facing_frames = 0
         
-        # פילטר הצבעה לייצוב זיהוי הפרופיל במצב סטטי
+        # Voting filter that stabilizes which side (left/right) profile is detected
         self.profile_voting = 0
         self.detected_profile = None 
         
-        # ניהול חוקיות החזרה
+        # Tracks whether the current rep should count
         self.current_rep_invalid = False
         self.is_posture_bad = False
 
@@ -40,7 +44,7 @@ class StandingKneeExtension(BaseExercise):
         self.detected_profile = None  
         self.is_posture_bad = False
         
-        # איפוס מונים בהתחלה חדשה
+        # Reset frame counters for the new session
         self.leg_error_frames = 0
         self.back_error_frames = 0
         self.front_facing_frames = 0
@@ -54,17 +58,13 @@ class StandingKneeExtension(BaseExercise):
             left_shoulder_z = landmarks[11].z
             right_shoulder_z = landmarks[12].z
             
-            # =====================================================================
-            # 🔒 מנגנון הצבעה דינמי ומיוצב לפרופיל (Profile Voting Filter)
-            # =====================================================================
+            
             if self.stage == 'START':
-                # בדיקה חלקה בזמן עמידת מוצא למניעת נעילת שווא בגלל פריים בודד רועש
                 if left_shoulder_z < right_shoulder_z:
                     self.profile_voting = min(15, self.profile_voting + 1)
                 else:
                     self.profile_voting = max(-15, self.profile_voting - 1)
                 
-                # קביעת הפרופיל על בסיס מגמה יציבה
                 if self.profile_voting >= 5:
                     self.detected_profile = 'LEFT'
                 elif self.profile_voting <= -5:
@@ -73,7 +73,7 @@ class StandingKneeExtension(BaseExercise):
                     if self.detected_profile is None:
                         self.detected_profile = 'LEFT' if left_shoulder_z < right_shoulder_z else 'RIGHT'
             
-            # שליפת נקודות ציון ביו-מכניות על פי הפרופיל הנבחר
+            # Pick the biomechanical landmarks according to the detected profile
             if self.detected_profile == 'LEFT':
                 shoulder_w = [landmarks[11].x, landmarks[11].y]
                 hip_w = [landmarks[23].x, landmarks[23].y]
@@ -93,13 +93,12 @@ class StandingKneeExtension(BaseExercise):
                 knee_s = [landmarks[25].x, landmarks[25].y]
                 ankle_s = [landmarks[27].x, landmarks[27].y]
             
-            # חישוב זוויות התנועה המדויקות
             hip_angle = AngleCalculator.calculate_angle(shoulder_w, hip_w, knee_w)
             working_knee_angle = AngleCalculator.calculate_angle(hip_w, knee_w, ankle_w)
             standing_knee_angle = AngleCalculator.calculate_angle(hip_s, knee_s, ankle_s)
             
-            # מדדי כיול יציבה (טווח מאוזן שמונע הדלקת שלד אדום שגוי במוצא)
-            back_straight = abs(shoulder_w[0] - hip_w[0]) < 0.18  
+            # Posture calibration thresholds (tuned to avoid falsely flagging bad
+            # posture during the starting stance)            back_straight = abs(shoulder_w[0] - hip_w[0]) < 0.18  
             facing_camera = abs(landmarks[11].x - landmarks[12].x) > 0.22 
             
         except Exception as e:
@@ -107,13 +106,10 @@ class StandingKneeExtension(BaseExercise):
             self.is_posture_bad = True
             return 0, self.counter
 
-        # =====================================================================
-        # 🚨 מערכת אבחון חכמה: הגנה מבוססת 4 פריימים לפסילה ו-8 פריימים למסך
-        # =====================================================================
         posture_warning = ""
         is_bad_now = False
 
-        # 1. בקרת פנים לחזית / פרופיל
+        # Facing the camera vs. profile check
         if facing_camera:
             self.front_facing_frames += 1
             if self.front_facing_frames >= 4 and self.stage in ['PASSE', 'EXTENDED']:
@@ -124,7 +120,7 @@ class StandingKneeExtension(BaseExercise):
         else:
             self.front_facing_frames = max(0, self.front_facing_frames - 1)
 
-        # 2. בקרת שמירה על גב ישר
+        # Straight back check
         if not back_straight:
             self.back_error_frames += 1
             if self.back_error_frames >= 4 and self.stage in ['PASSE', 'EXTENDED']:
@@ -135,7 +131,7 @@ class StandingKneeExtension(BaseExercise):
         else:
             self.back_error_frames = max(0, self.back_error_frames - 1)
 
-        # 3. בקרת נעילת רגל עמידה (מנוטרלת לחלוטין במצב מוצא סטטי)
+        # Standing leg lock check (fully disabled during the static starting stance)
         if self.stage != 'START' and standing_knee_angle < 145:
             self.leg_error_frames += 1
             if self.leg_error_frames >= 4 and self.stage in ['PASSE', 'EXTENDED']:
@@ -146,14 +142,10 @@ class StandingKneeExtension(BaseExercise):
         else:
             self.leg_error_frames = max(0, self.leg_error_frames - 1)
 
-        # עדכון משתנה צבע השלד הגרפי (מנורמל וחסין הבהובים)
         self.is_posture_bad = is_bad_now
 
-        # =====================================================================
-        # 🔄 מכונת המצבים הראשית (Finite State Machine)
-        # =====================================================================
+        # Main rep state machine
         
-        # מנגנון ביטול חזרה באמצע: אם המשתמש הוריד רגל לגמרי באמצע, מאפסים בצורה חלקה
         if self.stage in ['PASSE', 'EXTENDED'] and hip_angle > 145 and working_knee_angle > 145:
             self.stage = 'START'
             self.current_rep_invalid = False
@@ -163,19 +155,16 @@ class StandingKneeExtension(BaseExercise):
             self.feedback = "Rep reset. Stand straight."
             return working_knee_angle, self.counter
 
-        # מצב 0: START - המתנה לעמידת מוצא תקינה ותחילת הרמה
         if self.stage == 'START':
             if is_bad_now:
                 self.feedback = posture_warning
             else:
                 self.feedback = "Good posture. Lift to Passé!"
             
-            # כניסה לפסה (Passé) - דורש קיפול ברך והרמת ירך
             if hip_angle < 130 and working_knee_angle < 115:
                 self.stage = 'PASSE'
                 self.current_rep_invalid = False 
 
-        # מצב 1: PASSE - הרגל מקופלת באוויר, מחכים ליישור
         elif self.stage == 'PASSE':
             if is_bad_now:
                 self.feedback = posture_warning
@@ -186,7 +175,6 @@ class StandingKneeExtension(BaseExercise):
                 self.stage = 'EXTENDED'
                 self.feedback = "Brilliant extension! Hold it..."
 
-        # מצב 2: EXTENDED - הרגל ישרה קדימה, מחכים לקיפול חזרה
         elif self.stage == 'EXTENDED':
             if is_bad_now:
                 self.feedback = posture_warning
@@ -197,22 +185,21 @@ class StandingKneeExtension(BaseExercise):
                 self.stage = 'RETRACTED'
                 self.feedback = "Nice control! Now lower smoothly."
 
-        # מצב 3: RETRACTED - שלב הורדת הרגל חזרה לרצפה (שלב סלחני לרעידות מאמץ)
         elif self.stage == 'RETRACTED':
             if is_bad_now:
                 self.feedback = posture_warning
             else:
                 self.feedback = "Lower your leg completely to finish."
             
-            # זיהוי סיום תנועה מוחלט (הרגל נחתכה וישרה על הקרקע)
+            # Detect the movement is fully done (leg is back down and straight)
             if hip_angle > 145 and working_knee_angle > 145:
                 if self.current_rep_invalid:
-                    # המערכת תפסה ביצוע שגוי או מהיר מדי עם גב/רגל עקומה באוויר
+                    # Bad form or a rushed rep with a bent back/standing leg mid-air
+
                     self.feedback = "❌ Rep NOT counted! Keep back and standing leg straight."
                     self.stage = 'START'
                     self.current_rep_invalid = False
                 else:
-                    # ביצוע מושלם! ספירת חזרה ועדכון מדדים
                     self.counter += 1
                     self.stage = 'START'
                     
@@ -225,7 +212,7 @@ class StandingKneeExtension(BaseExercise):
                         self.reps_left = str(left)
                         self.feedback = f"Perfect rep! {left} remaining."
                 
-                # איפוס מונים בסיום החזרה לקראת החזרה הבאה
+                # Reset the frame counters for the next rep
                 self.leg_error_frames = 0
                 self.back_error_frames = 0
                 self.front_facing_frames = 0
