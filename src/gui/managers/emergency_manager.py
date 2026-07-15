@@ -3,11 +3,15 @@ from PyQt6.QtCore import QObject, Qt
 from PyQt6.QtGui import QFont
 
 class EmergencyManager(QObject):
-    def __init__(self, main_window=None):  # שינוי: מקבל את ה-MainWindow כהורה
+    """
+    Builds and controls the full-screen red emergency overlay shown when a
+    fall/emergency is triggered.
+    """
+    def __init__(self, main_window=None):  # receives the MainWindow as its parent
         super().__init__(main_window)
         self.main_window = main_window
         
-        # ה-Overlay כעת יושב ישירות על כל ה-MainWindow וחוסם הכל ברקע!
+        # The overlay sits directly on top of the whole MainWindow and blocks everything behind it
         self.overlay = QWidget(self.main_window)
         self.overlay.setObjectName("EmergencyOverlay")        
         
@@ -19,7 +23,7 @@ class EmergencyManager(QObject):
         self.text_label.setObjectName("EmergencyText")
         layout.addWidget(self.text_label)
         
-        # 🌟 הוספת כפתור יציאה / ביטול במרכז המסך האדום
+        # Exit/cancel button in the middle of the red screen
         self.exit_btn = QPushButton("I'M OK - CLOSE & RESET", self.overlay)
         self.exit_btn.setObjectName("EmergencyExitBtn") # תוכלי לעצב אותו ב-QSS
         self.exit_btn.setFixedSize(250, 50)
@@ -29,12 +33,12 @@ class EmergencyManager(QObject):
         self.overlay.hide()
 
     def show_emergency(self):
-        """פונקציה שמקפיצה את המסך האדום וחוסמת את כל האתר"""
+        """Function that displays the red screen and blocks access to the rest of the application"""
         if self.main_window:
-            # מתפרס על פני כל ה-MainWindow וחוסם פיזית גישה לשאר הכפתורים!
+            # Spans across the entire MainWindow and physically blocks access to the rest of the buttons!
             self.overlay.resize(self.main_window.size())
             self.overlay.move(0, 0)
-            self.overlay.raise_()  # דוחף את המסך האדום לשכבה הכי עליונה ב-UI
+            self.overlay.raise_()  # Pushes the red screen to the top layer in the UI
             
         self.overlay.show()
         print("[SOS] !!! EMERGENCY CALL PLACED TO AUTHORITIES !!!")

@@ -1,18 +1,13 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from src.ai.exercises.bicep_curl import BicepCurl
 from src.ai.exercises.knee_extension import StandingKneeExtension
+from src.ai.exercises.squat import Squat
 from src.ai.exercises.base_exercise import BaseExercise
 
-# מחלקות ה-Dummy שלכן מהמיין
-class DummySquat(BaseExercise):
-    def __init__(self):
-        super().__init__()
-        self.target_goal = 0
-        self.feedback = "Squat training coming soon!"
-    def set_target_goal(self, goal): self.target_goal = goal
-    def check(self, landmarks): return 0, 0
+# Placeholder exercise classes, until the real logic is implemented
 
 class DummyPushup(BaseExercise):
+    """Placeholder for the pushup exercise (not implemented yet)."""
     def __init__(self):
         super().__init__()
         self.target_goal = 0
@@ -23,20 +18,20 @@ class DummyPushup(BaseExercise):
 
 class SessionManager(QObject):
     """
-    מנהל הסשן הראשי של האימונים (SOLID - Single Responsibility Principle).
-    אחראי בלעדית על ניהול לוגיקת האימון, מדדי ה-AI, ומצבי החזרות והבונוסים.
+    The main session manager for the workouts (SOLID - Single Responsibility Principle).
+    Solely responsible for managing workout logic, AI metrics, and feedback states.
     """
-    # סיגנלים המדווחים ל-MainWindow לצורך עדכון ה-GUI בלבד
+    # Signals reported to MainWindow for UI updates only
     ui_metrics_updated = pyqtSignal(int, str, int, bool, str) # target_goal, reps_left, time_left, is_active, feedback
-    countdown_tick_received = pyqtSignal(int, str)           # מדווח על טיק של קאונטדאון (שניות, כותרת התרגיל)
-    countdown_finished = pyqtSignal()                        # מאותת שהקאונטדאון נגמר והאימון מתחיל
-    session_completed = pyqtSignal(bool)                     # מאותת שהאימון הסתיים (True=הצלחה, False=בזבוז זמן)
+    countdown_tick_received = pyqtSignal(int, str)           # reports a countdown tick (seconds, exercise title)
+    countdown_finished = pyqtSignal()                        # indicates the countdown has finished and the workout begins
+    session_completed = pyqtSignal(bool)                     # indicates the workout has completed (True=success, False=wasted time)
 
     def __init__(self, video_worker):
         super().__init__()
         self.video_worker = video_worker
         
-        # משתני מצב האימון המקוריים מה-MainWindow שלך
+        # Core workout session state
         self.exercise = None
         self.is_workout_active = False
         self.is_paused = False
@@ -46,7 +41,7 @@ class SessionManager(QObject):
         self.session_time_left = 0
 
     def start_countdown_phase(self, config_dict):
-        """מאתחל את נתוני הסשן ומתחיל את שלב ההכנה (במקום start_countdown_phase במיין)"""
+        """Initializes the session data and starts the preparation phase (instead of start_countdown_phase in MainWindow)"""
         self.is_workout_active = False 
         self.is_paused = False
         self.stored_config = config_dict
@@ -56,51 +51,50 @@ class SessionManager(QObject):
         target_goal = config_dict["target_goal"]
         self.session_time_left = config_dict["time_limit"] 
         
-        # 1. פולימורפיזם חכם ליצירת התרגיל (מחובר לתרגיל ה-Développé החדש שלך!)
+        # 1. Pick the right exercise class based on the selected name
         name_lower = exercise_name.lower()
         if "bicep" in name_lower or "curl" in name_lower:
             self.exercise = BicepCurl()
             speak_title = "Bicep Curls"
         elif "knee" in name_lower or "extension" in name_lower or "développé" in name_lower:
-            # כאן חיברנו את מחלקת ה-Développé האמיתית שלך במקום ה-Dummy
             self.exercise = StandingKneeExtension()
             speak_title = "Knee Extensions"
         elif "squat" in name_lower:
-            self.exercise = DummySquat()
+            self.exercise = Squat()
             speak_title = "Squats"
         else:
             self.exercise = DummyPushup()
             speak_title = "Pushups"
             
-        # 2. חיבור מנוע ה-AI (ה-Worker) אל התרגיל החדש שנבחר
+        # 2. Connect the AI worker to the newly selected exercise
         self.video_worker.set_exercise(self.exercise)
         
-        # 3. אתחול הקאונטדאון הפנימי
+        # 3. Initialize the internal countdown
         self.countdown_value = 3
         
-        # 4. איתות ראשוני ל-UI להציג את נתוני הפתיחה
+        # 4. Send initial UI update for the workout start
         self.ui_metrics_updated.emit(target_goal, str(target_goal), self.session_time_left, False, "")
         self.countdown_tick_received.emit(self.countdown_value, speak_title)
 
     def handle_countdown_tick(self):
-        """מנהל את שלב הטיקים של ההכנה (נקרא מהטיימר של המיין)"""
+        """Manages the preparation phase ticks (called from the main window's timer)"""
         self.countdown_value -= 1
         if self.countdown_value > 0:
             self.countdown_tick_received.emit(self.countdown_value, "")
         else:
-            # שלב ההכנה הסתיים - מתחילים את האימון בפועל!
+            # The preparation phase has finished - starting the actual workout!
             self.exercise.set_target_goal(self.stored_config["target_goal"])
             self.is_workout_active = True
             self.countdown_finished.emit()
 
     def handle_timer_tick(self):
-        """מפחית שניות ומעדכן את המדדים בכל שנייה שעוברת (במקום session_timer_tick במיין)"""
+        """Decrements the session time and updates the metrics each second."""
         if not self.is_workout_active or self.is_paused: 
             return
         
         self.session_time_left -= 1
         
-        # שידור המדדים המעודכנים לטובת ה-GUI דשבורד
+        # Broadcast the updated metrics to the GUI dashboard
         self.ui_metrics_updated.emit(
             self.exercise.target_goal,
             self.exercise.reps_left,
@@ -109,15 +103,14 @@ class SessionManager(QObject):
             self.exercise.feedback
         )
         
-        # בדיקה אם נגמר הזמן המלא של האימון
+        # Check if the full workout time has elapsed
         if self.session_time_left <= 0:
             self.is_workout_active = False
             self.session_completed.emit(self.goal_reached_successfully)
 
     def process_live_metrics(self, current_angle, feedback):
-        """מנתח את מדדי ה-AI שמתקבלים מהמצלמה בלייב (במקום receive_live_metrics במיין)"""
+        """Manages the live AI metrics received from the camera (instead of receive_live_metrics in MainWindow)"""
         if self.exercise is not None and self.is_workout_active:
-            # 🚨 חוק ה-Pause המקורי שלך: אם אנחנו בהקפאה, מתעלמים לחלוטין מהמדדים!
             if self.is_paused:
                 return
                 
@@ -129,22 +122,21 @@ class SessionManager(QObject):
                 feedback
             )
 
-            # זיהוי הגעה ליעד (ננעל על True ומאפשר לרוץ לבונוסים)
             reps_str = str(self.exercise.reps_left).strip()
             if reps_str == "0" or "Bonus" in reps_str or "-" in reps_str or (hasattr(self.exercise, 'counter') and self.exercise.counter >= self.exercise.target_goal):
                 self.goal_reached_successfully = True
 
     def set_paused(self, paused_state):
-        """מעדכן את מצב ההקפאה של ה-AI"""
+        """Updates whether AI metrics monitoring is currently paused."""
         self.is_paused = paused_state
         print(f"[SESSION] AI metrics monitoring pause state: {self.is_paused}")
 
     def reset_and_clean_session(self):
-        """מבצע אירוח וניקוי מוחלט של זיכרון התרגיל (במקום הלוגיקה ב-exit_to_selection_screen)"""
+        """Fully clears the current exercise instance and its state."""
         self.is_workout_active = False
         self.is_paused = False
         
-        # ניתוק בטוח של מנוע ה-AI מהתרגיל להשתקת פידבקים מיידית
+        # Disconnect the AI engine from the exercise, to silence feedback immediately
         self.video_worker.set_exercise(None)
         
         if self.exercise is not None:

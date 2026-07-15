@@ -4,7 +4,7 @@ from PyQt6.QtGui import QImage, QPixmap
 import cv2
 
 class VideoWidget(QLabel):
-    """חלונית המצלמה החיה של המתאמן - מוגדלת לחוויית UX מקסימלית"""
+    """The trainee's live camera feed widget, enlarged for maximum UX."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)

@@ -1,6 +1,10 @@
 import sqlite3
 
 class DBManager:
+    """
+    Handles all SQLite access: schema setup, user registration/auth,
+    emergency contacts, and live location tracking.
+    """
     def __init__(self, db_name="fitness_app.db"):
         self.db_path = db_name
         self.init_db()
@@ -9,12 +13,12 @@ class DBManager:
         return sqlite3.connect(self.db_path)
 
     def init_db(self):
-        """מייצר את 3 הטבלאות המשודרגות עם תמיכה ב- contact_type ומיקום דינמי"""
+        """Creates the 3 tables (auth, profiles, emergency_contacts) if they don't exist yet."""
         conn = self._get_connection()
         cursor = conn.cursor()
         cursor.execute("PRAGMA foreign_keys = ON;")
 
-        # 1. טבלת auth
+        # 1. auth table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS auth (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +27,7 @@ class DBManager:
             )
         """)
 
-        # 2. טבלת profiles - כולל שדות למיקום הגיאוגרפי הדינמי האחרון!
+        # 2. profiles table - includes fields for the last dynamic geographical location!
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS profiles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +43,7 @@ class DBManager:
             )
         """)
 
-        # 3. טבלת emergency_contacts - הוספת contact_type (private / official)
+        # 3. emergency_contacts table - added contact_type (private / official)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS emergency_contacts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,23 +64,19 @@ class DBManager:
         conn = self._get_connection()
         cursor = conn.cursor()
         try:
-            # א) טבלת auth
             cursor.execute("INSERT INTO auth (username, password) VALUES (?, ?)", (username, password))
             user_id = cursor.lastrowid
 
-            # ב) טבלת profiles (מיקום ריק בהתחלה, נדגום אותו דינמית באימון)
             cursor.execute("""
                 INSERT INTO profiles (user_id, gender, age, height, weight, last_latitude, last_longitude, last_location_name)
                 VALUES (?, ?, ?, ?, ?, NULL, NULL, 'Not Tracked Yet')
             """, (user_id, gender, age, height, weight))
 
-            # ג) הכנסת איש קשר פרטי (אבא / שכן)
             cursor.execute("""
                 INSERT INTO emergency_contacts (user_id, contact_name, contact_phone, contact_type)
                 VALUES (?, ?, ?, 'private')
             """, (user_id, ice_name, ice_phone))
 
-            # ד) הכנסת שירות הצלה רשמי נבחר (מד"א או משטרה)
             off_phone = "101" if "MADA" in official_service or "מד\"א" in official_service else "100"
             cursor.execute("""
                 INSERT INTO emergency_contacts (user_id, contact_name, contact_phone, contact_type)
@@ -92,6 +92,7 @@ class DBManager:
             conn.close()
 
     def authenticate_user(self, username, password):
+        """Checks the given credentials and returns the matching user, or None."""
         conn = self._get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT id, username FROM auth WHERE username = ? AND password = ?", (username, password))
@@ -100,7 +101,7 @@ class DBManager:
         return {"id": user[0], "username": user[1]} if user else None
 
     def update_live_location(self, user_id, lat, lon, loc_name):
-        """מעדכן בלייב את המיקום הגיאוגרפי האוטומטי שהמערכת זיהתה בתחילת האימון"""
+        """Live-updates the geographic location automatically detected at workout start."""
         conn = self._get_connection()
         cursor = conn.cursor()
         cursor.execute("""
@@ -113,7 +114,7 @@ class DBManager:
         print(f"[DATABASE] Live GPS tracking synced for User ID {user_id}: {loc_name}")
 
     def get_all_emergency_contacts(self, user_id):
-        """שולף את שני אנשי הקשר (גם את אבא וגם את מד"א) ברגע האמת של ה-SOS"""
+        """Fetches both emergency contacts (personal and official) at the moment of an SOS."""
         conn = self._get_connection()
         cursor = conn.cursor()
         cursor.execute("""

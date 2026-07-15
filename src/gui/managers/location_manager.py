@@ -5,12 +5,12 @@ from src.database.db_manager import DBManager
 
 class LocationManager(QObject):
     """
-    מנהל המיקום הגיאוגרפי הרשמי של האפליקציה (SOLID - Single Responsibility Principle).
-    אחראי בלעדית על דגימת ה-Live GPS מהרשת וסנכרונו מול בסיס הנתונים לצרכי ה-SOS.
+    The application's official location manager (SOLID - Single Responsibility Principle).
+    Solely responsible for pulling live GPS from the network and syncing it to the database for SOS purposes.
     """
-    # סיגנלים לעדכון המערכת בתוצאות המעקב
-    location_synced = pyqtSignal(str)   # משדר את שם המיקום שחולץ (למשל: "Bnei Brak, Israel")
-    tracking_failed = pyqtSignal(str)   # משדר הודעת שגיאה במקרה של תקלת תקשורת
+    # Signals for reporting tracking results
+    location_synced = pyqtSignal(str)   # emits the resolved location name (e.g. "Bnei Brak, Israel")
+    tracking_failed = pyqtSignal(str)   # emits an error message on a network failure
 
     def __init__(self):
         super().__init__()
@@ -18,8 +18,8 @@ class LocationManager(QObject):
 
     def trigger_live_geolocation_tracking(self, user_id):
         """
-        מפעיל טרד רקע עצמאי שמאתר את המיקום הגיאוגרפי של המתאמנת ומעדכן את ה-DB.
-        (בול כמו הלוגיקה המקורית במיין שלך, רק מבודד ומאובטח)
+        Starts a background thread that resolves the trainee's geographic
+        location and updates the database.
         """
         if user_id is None:
             self.tracking_failed.emit("No active user session for location tracking.")
@@ -27,7 +27,7 @@ class LocationManager(QObject):
 
         def run():
             try:
-                # פנייה ל-API הציבורי שבו השתמשת בקוד המקור
+                # Call the public IP-geolocation API
                 response = requests.get("http://ip-api.com/json/", timeout=5)
                 
                 if response.status_code == 200:
@@ -38,10 +38,9 @@ class LocationManager(QObject):
                     country = data.get("country", "Unknown Country")
                     loc_name = f"{city}, {country}"
                     
-                    # עדכון ישיר ב-DB באמצעות המתודה המקורית שלך
                     self.db.update_live_location(user_id, lat, lon, loc_name)
                     
-                    # איתות לעולם שהסנכרון הצליח
+                    # Emit a signal to indicate successful location update
                     print(f"[LOCATION] Live GPS successfully locked: {loc_name}")
                     self.location_synced.emit(loc_name)
                 else:
@@ -52,5 +51,5 @@ class LocationManager(QObject):
                 print(f"[LOCATION MONITOR] {error_msg}")
                 self.tracking_failed.emit(error_msg)
 
-        # הפעלת הטרד כטרד-עבד (daemon) כדי שלא יתקע את סגירת האפליקציה
+        # Run as a daemon thread so it doesn't block the app from closing
         threading.Thread(target=run, daemon=True).start()

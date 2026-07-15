@@ -4,6 +4,7 @@ from PyQt6.QtGui import QImage, QPixmap
 import cv2
 
 class VideoWidget(QLabel):
+    """A simple QLabel that displays live camera frames (converted from OpenCV to Qt)."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setText("Camera Loading...")

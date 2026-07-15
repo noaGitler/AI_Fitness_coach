@@ -7,31 +7,28 @@ from src.gui.workout.demo_widget import DemoVideoWidget
 from src.gui.workout.workout_dashboard import WorkoutDashboard
 
 class WorkoutScreen(QWidget):
-    """מסך האימון הפעיל - אחראי על סידור הרכיבים הוויזואליים בלבד"""
+    """The active workout screen: lays out the camera, demo panel, and dashboard."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
         
     def setup_ui(self):
+        """Builds the three-column layout: camera feed, demo clip, and stats dashboard."""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         
-        # כותרת עליונה
         self.header_label = QLabel("AI SESSION ACTIVE")
         self.header_label.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
         layout.addWidget(self.header_label, alignment=Qt.AlignmentFlag.AlignCenter)
         
-        # שורת התוכן הראשית
         content = QHBoxLayout()
         content.setSpacing(20) 
         
-        # 1. בלוק שמאל: המצלמה המוגדלת
         self.video_panel = VideoWidget(self)
         video_container = QVBoxLayout()
         video_container.addWidget(self.video_panel)
         content.addLayout(video_container, stretch=0)
         
-        # 2. בלוק מרכז: עמדת רובוט ההדגמה והכפתור (מיושרים לתחתית)
         demo_container = QVBoxLayout()
         demo_container.setSpacing(10)
         demo_container.addStretch() 
@@ -49,7 +46,6 @@ class WorkoutScreen(QWidget):
         demo_container.addWidget(self.replay_demo_btn, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         content.addLayout(demo_container, stretch=0)
         
-        # 3. בלוק ימין: דשבורד הנתונים
         self.dashboard = WorkoutDashboard(self)
         self.dashboard.setFixedWidth(320)
         content.addWidget(self.dashboard, stretch=0)
@@ -57,5 +53,4 @@ class WorkoutScreen(QWidget):
         layout.addLayout(content)
 
         self.header_label.setObjectName("SelectedProgramTitle")
-        # self.replay_demo_btn.setObjectName("PauseBtn")
         self.replay_demo_btn.setObjectName("ReplayDemoBtn")

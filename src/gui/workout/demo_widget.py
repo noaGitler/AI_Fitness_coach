@@ -5,9 +5,9 @@ import cv2
 import os
 
 class DemoVideoWidget(QLabel):
-    """חלונית הדגמה מקצועית - מניחה שכל הסרטונים נורמלו לחזרה 1 ומריצה אותם פעמיים"""
+    """A small widget that plays a looping demo clip of the correct exercise form."""
     
-    # מילון מפתח-ערך של התרגילים והנכסים
+    # Maps exercise name keywords to their demo video asset
     VIDEO_MAPPING = {
         "knee_extension": "assets/robot_knee.mp4",
         "knee extension": "assets/robot_knee.mp4",
@@ -16,6 +16,8 @@ class DemoVideoWidget(QLabel):
         "bicep_curl":     "assets/robot_bicep.mp4",
         "bicep curl":     "assets/robot_bicep.mp4",
         "bicep":           "assets/robot_bicep.mp4",
+
+        "squat":          "assets/robot_squat.mp4", 
     }
 
     def __init__(self, parent=None):
@@ -24,7 +26,6 @@ class DemoVideoWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         self.setObjectName("DemoWidget")
-        # אפקט הצל הדיגיטלי נשאר כאן מאחר והוא רכיב גרפי פיזי (QGraphicsEffect) ולא סטייל טקסטואלי
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(15)
         shadow.setColor(QColor(0, 243, 255, 100))
@@ -32,7 +33,7 @@ class DemoVideoWidget(QLabel):
         self.setGraphicsEffect(shadow)
         
         self.demo_cap = None
-        self.max_loops = 2  # כל סרטון במערכת יתנגן בדיוק פעמיים ברצף
+        self.max_loops = 2  # each video in the system will play exactly twice in succession
         self.loop_count = 0
         
         self.play_timer = QTimer(self)
@@ -68,12 +69,14 @@ class DemoVideoWidget(QLabel):
             self.setVisible(False)
 
     def trigger_manual_demo(self):
+        """Replays the demo clip from the start (e.g. on manual request)."""
         if self.demo_cap is not None:
             self.demo_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             self.loop_count = 0
             self.play_timer.start(33)
 
     def play_next_frame(self):
+        """Advances the demo clip by one frame, looping up to max_loops times."""
         if self.demo_cap is None:
             return
             
@@ -96,6 +99,7 @@ class DemoVideoWidget(QLabel):
         self.display_frame(frame)
 
     def display_frame(self, frame):
+        """Applies a smoothing filter and renders the frame as a scaled pixmap."""
         frame = cv2.bilateralFilter(frame, d=5, sigmaColor=40, sigmaSpace=40)
         h, w, ch = frame.shape
         bytes_per_line = ch * w
@@ -111,6 +115,7 @@ class DemoVideoWidget(QLabel):
         self.setPixmap(scaled_pixmap)
 
     def closeEvent(self, event):
+        """Releases the video capture resource when the widget closes."""
         self.play_timer.stop()
         if self.demo_cap is not None:
             self.demo_cap.release()
